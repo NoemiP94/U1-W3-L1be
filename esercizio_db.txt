@@ -1,0 +1,47 @@
+Esercizio U1-W3-L1
+
+1) Estrai tutti i clienti con nome Mario: 
+SELECT * FROM clienti WHERE nome = 'Mario'
+
+2) Estrarre il nome e il cognome dei clienti nati nel 1982:
+ SELECT nome, cognome FROM clienti WHERE anno_di_nascita = 1982
+ 
+3) Estrarre il numero delle fatture con iva al 20%:
+SELECT numero_fattura FROM fatture WHERE iva = 20
+
+4) Estrarre i prodotti attivati nel 2017 e che sono in produzione oppure in commercio:
+SELECT * FROM prodotti
+WHERE EXTRACT(YEAR FROM data_attivazione) = 2017 AND (in_produzione = true OR in_commercio = true)
+
+5) Estrarre le fatture con importo inferiore a 1000 e i dati de clienti ad esse collegate:
+SELECT * FROM fatture  INNER JOIN clienti  ON fatture.id_cliente = clienti.numero_cliente WHERE importo < 1000  
+
+6) Riportare l'elenco delle fatture (numero, importo, iva e data) con in aggiunta il nome del fornitore:
+SELECT numero_fattura, importo, iva, data_fattura, denominazione FROM fatture  JOIN fornitori ON  fatture.numero_fornitore = fornitori.numero_fornitore
+
+7) Considerando soltante le fatture con iva al 20 per cento, estrarre il numero di fatture per ogni anno 
+(Per estrarre l'anno da una data si può usare EXTRACT(YEAR FROM data)):
+SELECT EXTRACT(YEAR FROM data_fattura) AS anno, COUNT (numero_fattura) AS quantità FROM fatture
+WHERE iva = 20
+GROUP BY EXTRACT(YEAR FROM data_fattura)
+
+8) Riportare il numero di fatture e la somma dei relativi importi divisi per anno di fatturazione:
+SELECT EXTRACT(YEAR FROM data_fattura) AS anno, COUNT (numero_fattura) AS quantità , SUM (importo) importo_totale FROM fatture
+GROUP BY EXTRACT(YEAR FROM data_fattura)
+
+9) Estrarre gli anni in cui sono state registrate più di 2 fatture con tipologia 'A':
+SELECT EXTRACT(YEAR FROM data_fattura) AS anno FROM fatture
+WHERE tipologia = 'A' 
+GROUP BY anno HAVING COUNT(*) >= 2
+
+10) Estrarre il totale degli importi delle fatture divisi per residenza dei clienti:
+SELECT clienti.regione_residenza, SUM (fatture.importo) AS totale_importi 
+FROM fatture 
+INNER JOIN clienti ON fatture.id_cliente = clienti.numero_cliente
+GROUP BY clienti.regione_residenza
+
+11) Estrarre il numero dei clienti nati nel 1980 che hanno almeno una fattura superiore a 50 euro :
+SELECT COUNT(DISTINCT clienti.numero_cliente) AS numero_clienti
+FROM clienti
+INNER JOIN fatture ON clienti.numero_cliente = fatture.id_cliente
+WHERE EXTRACT(YEAR FROM clienti.anno_di_nascita) = 1980 AND fatture.importo > 50
